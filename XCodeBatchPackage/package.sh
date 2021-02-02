@@ -10,6 +10,8 @@ archive_path="" #/Users/garlic/GitHub/EasyScript/XCodeBatchPackage/Archive
 output_path="" #/Users/garlic/GitHub/EasyScript/XCodeBatchPackage/Output
 build_temp_path="" #/Users/garlic/GitHub/EasyScript/XCodeBatchPackage/Temp
 
+password="" #System password for unlock keychain for automatically signed targets
+
 #projcts resources dir
 resourceNames=(Project_01 Project_02 Project_03)
 
@@ -75,14 +77,16 @@ package() {
     -archivePath "$archive_path/$currentAppName" \
     clean \
     build \
-    -derivedDataPath "$build_temp_path"
+    -derivedDataPath "$build_temp_path" \
+    -allowProvisioningUpdates
 
-    xcodebuild -exportArchive -exportOptionsPlist "$export_plist_path" -archivePath "$archive_path/$currentAppName.xcarchive" -exportPath $output_path/$currentAppId
+    xcodebuild -exportArchive -exportOptionsPlist "$export_plist_path" -archivePath "$archive_path/$currentAppName.xcarchive" -exportPath $output_path/$currentAppId -allowProvisioningUpdates
 }
 
 run() {
+    security unlock-keychain -p ${password}
     sed -i '' "/teamID/{n;s/<string>.*<\/string>/<string>$team_id<\/string>/;}" $export_plist_path
-    
+
     project_index=0
     while [[ project_index -lt ${#appNames[@]} ]];
     do
